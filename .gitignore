@@ -1,0 +1,13 @@
+# Disk images
+*.img
+*.iso
+
+# Compiled binaries
+*.elf
+*.bin
+
+# Object files
+*.o
+
+# Temporary files
+*.tmp

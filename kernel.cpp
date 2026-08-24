@@ -1,6 +1,19 @@
 //kernel.cpp
 //this is the kernel of system
 
+unsigned char inb(unsigned short port)
+{
+    unsigned char value;
+
+    asm volatile (
+        "inb %1, %0"
+        : "=a"(value)
+        : "Nd"(port)
+    );
+
+    return value;
+}
+
 int streq(const char* a, const char* b)
 {
     int i = 0;
@@ -24,7 +37,7 @@ void clear(volatile unsigned short* video) {
 } 
 
 
-void print(const char* text, volatile unsigned short* video, int position, char *str_color="WHITE") { 
+void print(const char* text, volatile unsigned short* video, int position,const char *str_color="WHITE") { 
     int color;
     if (streq(str_color, "BLUE")) {
         color = 0x01;
