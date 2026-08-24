@@ -1,6 +1,7 @@
 //kernel.cpp
 //this is the kernel of system
 
+//get key scan code
 unsigned char inb(unsigned short port)
 {
     unsigned char value;
@@ -14,6 +15,7 @@ unsigned char inb(unsigned short port)
     return value;
 }
 
+//for strings
 int streq(const char* a, const char* b)
 {
     int i = 0;
@@ -29,14 +31,14 @@ int streq(const char* a, const char* b)
     return a[i] == b[i];
 }
 
-
+//clear console
 void clear(volatile unsigned short* video) { 
     for (int i = 0; i < 80 * 25; i++) { 
         video[i] = 0x0F20; 
     } 
 } 
 
-
+//print strings
 void print(const char* text, volatile unsigned short* video, int position,const char *str_color="WHITE") { 
     int color = 0x0F;
     if (streq(str_color, "BLUE")) {
@@ -58,7 +60,7 @@ void print(const char* text, volatile unsigned short* video, int position,const 
     }
 }
 
-
+//kernel
 extern "C" void kernel(void) {
     volatile unsigned short* video = (volatile unsigned short*)0xB8000;
 
