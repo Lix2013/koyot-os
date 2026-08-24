@@ -1,0 +1,7 @@
+g++ -m32 -ffreestanding -fno-pie -fno-stack-protector -Os -c kernel.cpp -o kernel.o
+nasm -f elf32 call_kernel.asm -o call_kernel.o
+nasm -f bin boot.asm -o boot.bin
+ld -m i386pe -Ttext 0x10000 -o kernel.elf call_kernel.o kernel.o
+objcopy -O binary kernel.elf kernel.bin
+cmd /c copy /b boot.bin+kernel.bin koyot.img
+qemu-system-x86_64 -drive format=raw,file=koyot.img                              
