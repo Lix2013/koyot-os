@@ -38,7 +38,7 @@ void clear(volatile unsigned short* video) {
 
 
 void print(const char* text, volatile unsigned short* video, int position,const char *str_color="WHITE") { 
-    int color;
+    int color = 0x0F;
     if (streq(str_color, "BLUE")) {
         color = 0x01;
     }
@@ -51,9 +51,11 @@ void print(const char* text, volatile unsigned short* video, int position,const 
     if (streq(str_color, "WHITE")) {
         color = 0x0F;
     }
-    for (int i = 0; text[i] != '\0'; i++) {
-        video[position + i] = (color << 8) | text[i]; 
-    } 
+
+    for (int i = 0; text[i] != '\0'; i++)
+    {
+        video[position + i] = (color << 8) | text[i];
+    }
 }
 
 
@@ -62,4 +64,13 @@ extern "C" void kernel(void) {
 
     clear(video);
     print("Hello !", video, 0, "CYAN");
+    print("Koyot OS - 0.1 - LTS", video, 80, "BLUE");
+    print("You are in console !", video, 160, "GREEN");
+
+    while (1){
+        unsigned char key = inb(0x60);
+        if (key == 0x10) {
+            print("q pressed !", video, 240);
+        }
+    }
 }
