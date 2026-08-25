@@ -9,46 +9,6 @@ int cursor_y = 0;
 
 unsigned char text_color = 0x0F;
 
-unsigned char inb(unsigned short port)
-{
-    unsigned char value;
-
-    asm volatile (
-        "inb %1, %0"
-        : "=a"(value)
-        : "Nd"(port)
-    );
-
-    return value;
-}
-
-void clear(void)
-{
-    volatile unsigned short* video =
-        (volatile unsigned short*)0xB8000;
-
-    for (int i = 0; i < 80 * 25; i++)
-    {
-        video[i] = 0x0F20;
-    }
-}
-
-unsigned char get_scancode()
-{
-    while ((inb(0x64) & 1) == 0)
-        ;
-
-    return inb(0x60);
-}
-
-unsigned char get_key() {
-    char key = get_scancode();
-
-    if (key == 0x10) {
-        return 'q';
-    }
-}
-
 void putchar(char c)
 {
     if (c == '\n')
@@ -85,7 +45,6 @@ void putchar(char c)
 
     if (cursor_y >= VGA_HEIGHT)
     {
-        // Scroll الشاشة سطرًا واحدًا للأعلى
         for (int y = 1; y < VGA_HEIGHT; y++)
         {
             for (int x = 0; x < VGA_WIDTH; x++)
@@ -95,7 +54,6 @@ void putchar(char c)
             }
         }
 
-        // مسح آخر سطر
         for (int x = 0; x < VGA_WIDTH; x++)
         {
             VGA_MEMORY[(VGA_HEIGHT - 1) * VGA_WIDTH + x] =
@@ -106,6 +64,52 @@ void putchar(char c)
     }
 }
 
+
+
+unsigned char inb(unsigned short port)
+{
+    unsigned char value;
+
+    asm volatile (
+        "inb %1, %0"
+        : "=a"(value)
+        : "Nd"(port)
+    );
+
+    return value;
+}
+
+void clear(void)
+{
+    volatile unsigned short* video =
+        (volatile unsigned short*)0xB8000;
+
+    for (int i = 0; i < 80 * 25; i++)
+    {
+        video[i] = 0x0F20;
+    }
+}
+
+unsigned char get_scancode()
+{
+    while ((inb(0x64) & 1) == 0)
+        ;
+
+    return inb(0x60);
+}
+
+unsigned char get_key() {
+    char key = get_scancode();
+
+    if (key == 0x10) {
+        putchar('q');
+        return 'q';
+    }
+    if (key == 0x11) {
+        putchar('w');
+        return 'w';
+    }
+}
 
 void print(const char* text)
 {
