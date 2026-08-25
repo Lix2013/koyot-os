@@ -1,7 +1,14 @@
-g++ -m32 -ffreestanding -fno-pie -fno-stack-protector -Os -c kernel.cpp -o kernel.o
-nasm -f elf32 call_kernel.asm -o call_kernel.o
+#build:
+
 nasm -f bin boot.asm -o boot.bin
-ld -m i386pe -Ttext 0x10000 -o kernel.elf call_kernel.o kernel.o
-objcopy -O binary kernel.elf kernel.bin
-cmd /c copy /b boot.bin+kernel.bin koyot.img
-qemu-system-x86_64 -drive format=raw,file=koyot.img                              
+
+g++ -m32 -ffreestanding -c kernel.cpp -o kernel.o
+
+ld -m elf_i386 -T linker.ld -o kernel.elf kernel.o
+
+objcopy -O binary kernel.elf kernel.bin         
+
+python -c "open('koyot.img','wb').write(open('boot.bin','rb').read()+open('kernel.bin','rb').read())"
+
+#run in qemu :
+ qemu-system-x86_64 -drive format=raw,file=koyot.img
