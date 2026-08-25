@@ -8,7 +8,7 @@ extern "C" void kernel(void) {
     volatile unsigned short* video = (volatile unsigned short*)0xB8000;
 
     clear(video);
-    print("Hello !", video, 0, "CYAN");
+    print("KERNEL NEW!", video, 0, "RED");
     print("Koyot OS - 0.1 - LTS", video, 80, "BLUE");
     print("You are in console !", video, 160, "GREEN");
 

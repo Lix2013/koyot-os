@@ -22,7 +22,7 @@ start:
     mov cl, 2
     mov dh, 0
 
-    mov dx, 0x80
+    mov dx, [boot_drive]
 
     mov bx, 0x1000
     mov es, bx
