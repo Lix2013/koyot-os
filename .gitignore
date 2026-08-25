@@ -1,5 +1,6 @@
 # Disk images
 *.iso
+*.img
 
 # Compiled binaries
 *.elf
