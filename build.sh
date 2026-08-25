@@ -41,7 +41,7 @@ with open(p, "wb") as f:
     f.write(b"\x00" * (target - len(data)))
 PY
 
-    cat boot.bin call_kernel.bin > koyot.img
+    cat boot.bin call_kernel.bin > koyot-v0.2.img
 
     echo "Build successful!"
     echo "Kernel size: $(stat -c%s call_kernel.bin) bytes"
@@ -49,7 +49,7 @@ PY
 }
 
 run() {
-    qemu-system-x86_64 -drive format=raw,file=koyot.img
+    qemu-system-x86_64 -drive format=raw,file=koyot-v0.2.img
 }
 
 echo "Koyot build system loaded."

@@ -158,6 +158,9 @@ void clear(void)
     {
         video[i] = 0x0F20;
     }
+
+    cursor_x = 0;
+    cursor_y = 0;
 }
 
 unsigned char get_scancode()
@@ -233,18 +236,18 @@ void _kernel(void)
 
     clear();
 
-
-    print("Hello from Koyot kernel !\n");
+    print("----Koyot OS V0.2 LTS - you are in kernel----\n");
 
     char buffer[128];
 
     while (1) {
-        input("enter command > ", buffer, 128);
+        input("> ", buffer, 128);
 
         if (strcmp(buffer, "q") == 0) {
             break;
         } else if (strcmp(buffer, "clear") == 0) {
             clear();
+            print("----Koyot OS V0.2 LTS - you are in kernel----\n");
         } else if (strcmp(buffer, "ver") == 0) {
             print("Koyot OS version : <");
             print(VERSION);
@@ -252,6 +255,8 @@ void _kernel(void)
         }
     }
 
+    clear();
+    print("----Koyot OS V0.2 LTS - you are in kernel----\n");
     print("Bye !\n");
 
     while (1)
