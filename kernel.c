@@ -16,7 +16,7 @@ void _kernel(void)
 
     clear();
 
-    const char* msg = "Hello from Koyot kernel!";
+    const char* msg = "Hello from Koyot kernel !";
 
     for (int i = 0; msg[i] != '\0'; i++)
     {
