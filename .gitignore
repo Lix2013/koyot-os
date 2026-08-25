@@ -1,5 +1,4 @@
 # Disk images
-*.img
 *.iso
 
 # Compiled binaries
