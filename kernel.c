@@ -11,6 +11,7 @@ unsigned char text_color = 0x0F;
 
 #define VERSION "0.2"
 
+//keyboard Map
 const char keyboard_map[128] = {
     [0x02] = '1',
     [0x03] = '2',
