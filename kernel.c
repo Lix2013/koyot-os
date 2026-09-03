@@ -16,7 +16,7 @@ void _kernel(void)
     while (1) {
         input("> ", buffer, 128);
 
-        if (strcmp(buffer, "quit") == 0) {
+        if (strcmp(buffer, "q") == 0) {
             break;
         } else if (strcmp(buffer, "clear") == 0) {
             clear();
@@ -31,10 +31,4 @@ void _kernel(void)
     clear();
     print("----Koyot OS V0.8 LTS - you are in kernel----\n");
     print("Bye !\n");
-
-    while (1)
-    {
-        
-        __asm__ volatile ("hlt");
-    }
 }
