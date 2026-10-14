@@ -1,32 +1,64 @@
-#ifndef IO_LIB_H
-#define IO_LIB_H
+/*
+ * Copyright 2026 Lix
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *     http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+#ifndef IO_H
+#define IO_H
+
+#include "keyboard.h"
 
 #define VGA_WIDTH 80
 #define VGA_HEIGHT 25
 
-#include "keyboard.h"
+static volatile unsigned short* const VGA_MEMORY = (volatile unsigned short*)0xB8000;
 
-int strcmp(const char* a, const char* b)
+static int cursor_x = 0;
+static int cursor_y = 0;
+static unsigned char text_color = 0x0F;
+
+static inline void outb(unsigned short port, unsigned char val)
+{
+    asm volatile ("outb %0, %1" : : "a"(val), "Nd"(port));
+}
+
+static inline int strcmp(const char* a, const char* b)
 {
     while (*a && *a == *b)
     {
         a++;
         b++;
     }
-
-    return *a - *b;
+    return (unsigned char)*a - (unsigned char)*b;
 }
 
-volatile unsigned short* const VGA_MEMORY =
-    (volatile unsigned short*)0xB8000;
+static inline void update_hardware_cursor(void)
+{
+    unsigned short pos = cursor_y * VGA_WIDTH + cursor_x;
 
-int cursor_x = 0;
-int cursor_y = 0;
+    outb(0x3D4, 0x0F);
+    outb(0x3D5, (unsigned char)(pos & 0xFF));
+    outb(0x3D4, 0x0E);
+    outb(0x3D5, (unsigned char)((pos >> 8) & 0xFF));
+}
 
-unsigned char text_color = 0x0F;
+static inline void set_color(unsigned char fg, unsigned char bg)
+{
+    text_color = (bg << 4) | (fg & 0x0F);
+}
 
-
-void putchar(char c)
+static inline void putchar(char c)
 {
     if (c == '\n')
     {
@@ -42,15 +74,12 @@ void putchar(char c)
         if (cursor_x > 0)
         {
             cursor_x--;
-            VGA_MEMORY[cursor_y * VGA_WIDTH + cursor_x] =
-                ((unsigned short)text_color << 8) | ' ';
+            VGA_MEMORY[cursor_y * VGA_WIDTH + cursor_x] = ((unsigned short)text_color << 8) | ' ';
         }
     }
     else
     {
-        VGA_MEMORY[cursor_y * VGA_WIDTH + cursor_x] =
-            ((unsigned short)text_color << 8) | (unsigned char)c;
-
+        VGA_MEMORY[cursor_y * VGA_WIDTH + cursor_x] = ((unsigned short)text_color << 8) | (unsigned char)c;
         cursor_x++;
 
         if (cursor_x >= VGA_WIDTH)
@@ -66,22 +95,22 @@ void putchar(char c)
         {
             for (int x = 0; x < VGA_WIDTH; x++)
             {
-                VGA_MEMORY[(y - 1) * VGA_WIDTH + x] =
-                    VGA_MEMORY[y * VGA_WIDTH + x];
+                VGA_MEMORY[(y - 1) * VGA_WIDTH + x] = VGA_MEMORY[y * VGA_WIDTH + x];
             }
         }
 
         for (int x = 0; x < VGA_WIDTH; x++)
         {
-            VGA_MEMORY[(VGA_HEIGHT - 1) * VGA_WIDTH + x] =
-                ((unsigned short)text_color << 8) | ' ';
+            VGA_MEMORY[(VGA_HEIGHT - 1) * VGA_WIDTH + x] = ((unsigned short)text_color << 8) | ' ';
         }
 
         cursor_y = VGA_HEIGHT - 1;
     }
+
+    update_hardware_cursor();
 }
 
-void print(const char* text)
+static inline void print(const char* text)
 {
     while (*text)
     {
@@ -90,8 +119,19 @@ void print(const char* text)
     }
 }
 
+static inline void clear(void)
+{
+    for (int i = 0; i < VGA_WIDTH * VGA_HEIGHT; i++)
+    {
+        VGA_MEMORY[i] = ((unsigned short)text_color << 8) | ' ';
+    }
 
-void input(const char* prompt, char* buffer, int max_length)
+    cursor_x = 0;
+    cursor_y = 0;
+    update_hardware_cursor();
+}
+
+static inline void input(const char* prompt, char* buffer, int max_length)
 {
     print(prompt);
 
@@ -114,11 +154,6 @@ void input(const char* prompt, char* buffer, int max_length)
                 i--;
                 putchar('\b');
             }
-
-            continue;
-        }
-
-        if (key == 0) {
             continue;
         }
 
@@ -126,26 +161,11 @@ void input(const char* prompt, char* buffer, int max_length)
         {
             buffer[i] = key;
             i++;
-
             putchar(key);
         }
     }
 
     buffer[i] = '\0';
-}
-
-void clear(void)
-{
-    volatile unsigned short* video =
-        (volatile unsigned short*)0xB8000;
-
-    for (int i = 0; i < 80 * 25; i++)
-    {
-        video[i] = 0x0F20;
-    }
-
-    cursor_x = 0;
-    cursor_y = 0;
 }
 
 #endif
